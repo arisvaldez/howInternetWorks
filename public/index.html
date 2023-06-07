@@ -27,6 +27,7 @@
                 <th>#</th>
                 <th>Nombre</th>
                 <th>Telefono</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody id="tbody">
@@ -38,7 +39,7 @@
     <script>
         const urlApi = 'http://localhost:3000';
         const tbody = document.getElementById('tbody');
-        
+
         async function getUsers() {
             try {
 
@@ -69,9 +70,15 @@
                 <td>${rowData.index}</td>
                 <td>${rowData.name}</td>
                 <td>${rowData.phone}</td>
+                <td><button onclick="eliminar(${rowData.id})">x</button></>
+                <td><button onclick="editar(${rowData.id})">x</button></>
             `;
 
             tbody.appendChild(tr);
+        }
+
+        function eliminar(id) {
+            alert(id)
         }
 
         async function addNewUser() {
@@ -83,7 +90,7 @@
                 phone: userphone.value
             }
 
-            const raw = JSON.stringify(userData);
+            const jsonBody = JSON.stringify(userData);
 
 
             const myHeaders = new Headers();
@@ -91,13 +98,18 @@
 
             const requestOptions = {
                 method: 'POST',
-                body: raw,
+                body: jsonBody,
                 headers: myHeaders
             }
 
             try {
                 const response = await fetch(`${urlApi}/users`, requestOptions);
                 const jsonData = await response.json();
+
+                const message = `El usuario ${jsonData.name} fue registrado correctamente`;
+
+                alert(message);
+
                 getUsers();
             } catch (ex) {
                 alert('Ocurrio un error inesperado')
