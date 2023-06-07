@@ -70,8 +70,10 @@
                 <td>${rowData.index}</td>
                 <td>${rowData.name}</td>
                 <td>${rowData.phone}</td>
-                <td><button onclick="eliminar(${rowData.id})">x</button></>
-                <td><button onclick="editar(${rowData.id})">x</button></>
+                <td>
+                    <button onclick="eliminar(${rowData.id})">x</button>
+                    <button onclick="editar(${rowData})">E</button>
+                </td>
             `;
 
             tbody.appendChild(tr);
