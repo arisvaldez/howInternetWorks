@@ -70,7 +70,7 @@ app.put('/users/:id', (request, response) => {
     response.json(user);
 });
 
-app.delete('users/:id', (request, response) => {
+app.delete('/users/:id', (request, response) => {
     const { id } = request.params;
 
     const user = users.find((u) => u.id === +id);
@@ -92,7 +92,6 @@ app.delete('users/:id', (request, response) => {
 app.post('/users', (request, response) => {
     const { name, phone } = request.body;
 
-    console.log(request.body);
     _id += 1;
 
     const newUser = {

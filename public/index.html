@@ -6,6 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .btn {
+            color: red;
+        }
+    </style>
 </head>
 
 <body>
@@ -18,7 +23,8 @@
 
     </div>
     <div style="margin-bottom: 2rem;">
-        <button onclick="addNewUser()">Registrar</button>
+        <button id="btnSave" onclick="addNewUser()">Registrar</button>
+        <button id="btnClear" onclick="clearInputs()">Cancelar</button>
     </div>
 
     <table border="1" style="border-collapse: collapse; width: 300px;">
@@ -39,8 +45,25 @@
     <script>
         const urlApi = 'http://localhost:3000';
         const tbody = document.getElementById('tbody');
+        const username = document.getElementById('username');
+        const userphone = document.getElementById('userphone');
+        const btnSave = document.getElementById('btnSave');
+
+        let editingId = 0;
+
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        function clearInputs() {
+            username.value = '';
+            userphone.value = '';
+            btnSave.onclick = addNewUser;
+            btnSave.innerText = "Registrar";
+        }
 
         async function getUsers() {
+            btnSave.onclick = addNewUser;
+
             try {
 
                 const response = await fetch(`${urlApi}/users`);
@@ -71,32 +94,21 @@
                 <td>${rowData.name}</td>
                 <td>${rowData.phone}</td>
                 <td>
-                    <button onclick="eliminar(${rowData.id})">x</button>
-                    <button onclick="editar(${rowData})">E</button>
+                    <button class="btn" onclick="eliminar(${rowData.id})">X</button>
+                    <button onclick="getValueForEditing(${rowData.id}, '${rowData.name}', '${rowData.phone}')">E</button>
                 </td>
             `;
 
             tbody.appendChild(tr);
         }
 
-        function eliminar(id) {
-            alert(id)
-        }
-
         async function addNewUser() {
-            const username = document.getElementById('username');
-            const userphone = document.getElementById('userphone');
-
             const userData = {
                 name: username.value,
                 phone: userphone.value
             }
 
             const jsonBody = JSON.stringify(userData);
-
-
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
 
             const requestOptions = {
                 method: 'POST',
@@ -118,6 +130,65 @@
             }
         }
 
+        async function eliminar(id) {
+
+            const requestOptions = {
+                method: 'DELETE',
+                headers: myHeaders
+            }
+
+            const endPoint = `${urlApi}/users/${id}`;
+
+            try {
+                const response = await fetch(endPoint, requestOptions);
+                const jsonData = await response.json();
+
+                const message = `El usuario ${jsonData.name} fue eliminado correctamente`;
+
+                alert(message);
+
+                getUsers();
+            } catch (ex) {
+                console.log(ex);
+                alert('Ocurrio un error inesperado')
+            }
+        }
+
+        function getValueForEditing(id, name, phone) {
+            username.value = name;
+            userphone.value = phone;
+            editingId = id;
+            btnSave.innerText = "Guardar Cambios";
+            btnSave.onclick = saveEditing;
+        }
+
+        async function saveEditing() {
+            const userData = {
+                name: username.value,
+                phone: userphone.value
+            }
+
+            const jsonBody = JSON.stringify(userData);
+
+            const requestOptions = {
+                method: 'PUT',
+                body: jsonBody,
+                headers: myHeaders
+            }
+
+            const endPoint = `${urlApi}/users/${editingId}`;
+            try {
+                const response = await fetch(endPoint, requestOptions);
+                const jsonData = await response.json();
+
+                clearInputs();
+
+                getUsers();
+            } catch (ex) {
+                alert('Ocurrio un error inesperado')
+            }
+
+        }
 
         getUsers();
     </script>
